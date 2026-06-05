@@ -44,14 +44,14 @@ export function SaveHistory({ periodId, limit = 15 }: SaveHistoryProps) {
   }, [isDirty, expanded, loadEvents])
 
   return (
-    <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="card section-gap p-5">
       <button
         type="button"
         onClick={() => setExpanded((open) => !open)}
         className="flex w-full items-center justify-between text-left"
       >
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Save history</h2>
+          <h2 className="section-heading">Save history</h2>
           <p className="mt-1 text-sm text-slate-500">One entry per explicit save</p>
         </div>
         <svg
@@ -59,6 +59,7 @@ export function SaveHistory({ periodId, limit = 15 }: SaveHistoryProps) {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>

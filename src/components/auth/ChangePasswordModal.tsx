@@ -57,11 +57,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
         <div className="space-y-4">
           <p className="text-sm text-slate-600">Your password has been updated.</p>
           <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-            >
+            <button type="button" onClick={handleClose} className="btn-primary btn-sm">
               Done
             </button>
           </div>
@@ -69,7 +65,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
       ) : (
         <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
           <div>
-            <label htmlFor="current-password" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="current-password" className="form-label">
               Current password
             </label>
             <input
@@ -79,12 +75,12 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
               required
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none ring-indigo-500 focus:ring-2"
+              className="input-field"
             />
           </div>
 
           <div>
-            <label htmlFor="new-password" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="new-password" className="form-label">
               New password
             </label>
             <input
@@ -94,12 +90,12 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
               required
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none ring-indigo-500 focus:ring-2"
+              className="input-field"
             />
           </div>
 
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="confirm-password" className="form-label">
               Confirm new password
             </label>
             <input
@@ -109,7 +105,7 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
               required
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none ring-indigo-500 focus:ring-2"
+              className="input-field"
             />
           </div>
 
@@ -118,18 +114,10 @@ export function ChangePasswordModal({ open, onClose }: ChangePasswordModalProps)
           )}
 
           <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
+            <button type="button" onClick={handleClose} className="btn-secondary btn-sm">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
-            >
+            <button type="submit" disabled={submitting} className="btn-primary btn-sm">
               {submitting ? 'Updating…' : 'Update password'}
             </button>
           </div>

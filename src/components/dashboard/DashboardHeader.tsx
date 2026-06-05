@@ -1,11 +1,16 @@
 import { Link } from 'react-router-dom'
 import type { PlanningPeriod } from '../../types'
 import { useAuthStore } from '../../store/authStore'
+import { useOkrStore } from '../../store/okrStore'
 import { selectPeriodConfidence, selectPeriodProgress } from '../../store/selectors'
 import { progressToPercent, getProgressTextColorClass } from '../../utils/calculations'
+import { formatPeriodRange } from '../../utils/formatDate'
 import { UserMenu } from '../auth/UserMenu'
+import { PageHeader } from '../layout/PageHeader'
+import { PeriodSelector } from '../period/PeriodSelector'
 import { ConfidenceBadge } from '../ui/ConfidenceBadge'
 import { ProgressBar } from '../ui/ProgressBar'
+import { StatusBadge } from '../ui/StatusBadge'
 
 type DashboardHeaderProps = {
   period: PlanningPeriod
@@ -13,64 +18,66 @@ type DashboardHeaderProps = {
 
 export function DashboardHeader({ period }: DashboardHeaderProps) {
   const canAccess = useAuthStore((s) => s.canAccess)
+  const periods = useOkrStore((s) => s.periods)
+  const selectedPeriodId = useOkrStore((s) => s.selectedPeriodId)
+  const selectPeriod = useOkrStore((s) => s.selectPeriod)
   const progress = selectPeriodProgress(period)
   const confidence = selectPeriodConfidence(period)
   const percent = progressToPercent(progress)
 
-  return (
-    <header className="mb-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h1 className="text-sm font-medium uppercase tracking-wide text-indigo-600">
-            SRT Tech Team OKRs
-          </h1>
-        </div>
+  const displayPeriodId = selectedPeriodId ?? period.id
 
-        <div className="flex flex-wrap items-center gap-3">
+  return (
+    <PageHeader
+      eyebrow="SRT Tech Team OKRs"
+      title={period.name}
+      badges={<StatusBadge status={period.status} />}
+      subtitle={formatPeriodRange(period.startDate, period.endDate)}
+      actions={
+        <>
           {canAccess('editor') && (
-            <Link
-              to="/edit"
-              className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 shadow-sm transition hover:bg-indigo-100"
-            >
+            <Link to="/edit" className="btn-accent">
               Edit OKRs
             </Link>
           )}
           {canAccess('admin') && (
-            <Link
-              to="/admin"
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"
-            >
+            <Link to="/admin" className="btn-secondary">
               Admin
             </Link>
           )}
           <UserMenu />
+        </>
+      }
+    >
+      {canAccess('editor') && periods.length > 1 && (
+        <div className="mb-6 max-w-sm">
+          <label htmlFor="dashboard-period" className="form-label">
+            Planning period
+          </label>
+          <PeriodSelector
+            id="dashboard-period"
+            periods={periods}
+            selectedId={displayPeriodId}
+            onSelect={selectPeriod}
+          />
         </div>
-      </div>
+      )}
 
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">{period.name}</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            {period.startDate} → {period.endDate}
-          </p>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-600">Overall progress</span>
+            <span className={`text-2xl font-bold tabular-nums ${getProgressTextColorClass(percent)}`}>
+              {percent}%
+            </span>
+          </div>
+          <ProgressBar progress={progress} showLabel={false} />
         </div>
-
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-600">Overall progress</span>
-              <span className={`text-2xl font-bold tabular-nums ${getProgressTextColorClass(percent)}`}>
-                {percent}%
-              </span>
-            </div>
-            <ProgressBar progress={progress} showLabel={false} />
-          </div>
-          <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
-            <span className="text-sm font-medium text-slate-600">Overall confidence</span>
-            <ConfidenceBadge confidence={confidence} />
-          </div>
+        <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+          <span className="text-sm font-medium text-slate-600">Overall confidence</span>
+          <ConfidenceBadge confidence={confidence} />
         </div>
       </div>
-    </header>
+    </PageHeader>
   )
 }

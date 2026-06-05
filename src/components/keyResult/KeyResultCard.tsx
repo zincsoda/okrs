@@ -24,7 +24,7 @@ export function KeyResultCard({
   const progress = selectKrProgress(keyResult)
 
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition hover:border-slate-200">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -36,7 +36,7 @@ export function KeyResultCard({
                 <EditableTextField
                   value={keyResult.title}
                   onChange={(title) => onUpdate({ title })}
-                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  inputClassName="input-field font-medium"
                 />
               </div>
             ) : (
@@ -49,14 +49,13 @@ export function KeyResultCard({
               onChange={(owner) => onUpdate({ owner })}
               placeholder="Owner"
               className="mt-1"
-              inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
           ) : (
             <p className="mt-0.5 text-sm text-slate-500">{keyResult.owner}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <ConfidenceBadge confidence={keyResult.confidence} size="sm" />
+          {!editable && <ConfidenceBadge confidence={keyResult.confidence} size="sm" />}
           {editable && draftPeriod && (
             <button
               type="button"
@@ -74,32 +73,27 @@ export function KeyResultCard({
 
       <ProgressBar progress={progress} size="sm" />
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div>
+      <div className="mt-4">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Metrics</p>
+        <div className="grid grid-cols-2 gap-3">
           <EditableNumberField
             label="Baseline"
             value={keyResult.baseline}
             disabled={!editable}
             onChange={(baseline) => onUpdate({ baseline })}
           />
-        </div>
-        <div>
           <EditableNumberField
             label="Current"
             value={keyResult.current}
             disabled={!editable}
             onChange={(v) => onUpdate({ current: v })}
           />
-        </div>
-        <div>
           <EditableNumberField
             label="Target"
             value={keyResult.target}
             disabled={!editable}
             onChange={(target) => onUpdate({ target })}
           />
-        </div>
-        <div>
           {draftPeriod && editable ? (
             <WeightInput
               value={keyResult.weight}
@@ -116,12 +110,11 @@ export function KeyResultCard({
 
       {editable && (
         <div className="mt-3">
-          <label className="mb-1 block text-xs font-medium text-slate-500">Confidence</label>
+          <label className="mb-1 block text-xs font-medium text-slate-500">Key result confidence</label>
           <select
             value={keyResult.confidence}
-            disabled={!editable}
             onChange={(e) => onUpdate({ confidence: e.target.value as Confidence })}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50"
+            className="select-field"
           >
             <option value="High">High</option>
             <option value="Medium">Medium</option>
@@ -138,7 +131,7 @@ export function KeyResultCard({
               value={keyResult.notes}
               onChange={(e) => onUpdate({ notes: e.target.value })}
               rows={2}
-              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="input-field"
             />
           ) : (
             <p className="text-sm text-slate-500">{keyResult.notes}</p>
@@ -155,7 +148,6 @@ export function KeyResultCard({
           </button>
         )
       )}
-
     </div>
   )
 }

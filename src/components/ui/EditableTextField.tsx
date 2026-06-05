@@ -12,9 +12,6 @@ type EditableTextFieldProps = {
   inputClassName?: string
 }
 
-const baseInputClassName =
-  'w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400'
-
 export function EditableTextField({
   value,
   onChange,
@@ -24,7 +21,7 @@ export function EditableTextField({
   multiline = false,
   rows = 2,
   className = '',
-  inputClassName = baseInputClassName,
+  inputClassName = 'input-field',
 }: EditableTextFieldProps) {
   const [draft, setDraft] = useState(value)
 

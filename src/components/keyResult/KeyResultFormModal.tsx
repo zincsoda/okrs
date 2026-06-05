@@ -44,55 +44,55 @@ export function KeyResultFormModal({ open, onClose, onSubmit, title }: KeyResult
     <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Title</label>
+          <label className="form-label">Title</label>
           <input
             type="text"
             value={formTitle}
             onChange={(e) => setFormTitle(e.target.value)}
             required
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="input-field"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Owner</label>
+          <label className="form-label">Owner</label>
           <input
             type="text"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
             required
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="input-field"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Baseline</label>
+            <label className="form-label">Baseline</label>
             <input
               type="number"
               value={baseline}
               onChange={(e) => setBaseline(parseFloat(e.target.value) || 0)}
               required
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="input-field"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Target</label>
+            <label className="form-label">Target</label>
             <input
               type="number"
               value={target}
               onChange={(e) => setTarget(parseFloat(e.target.value) || 0)}
               required
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="input-field"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <WeightInput value={weight} onChange={setWeight} />
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Confidence</label>
+            <label className="form-label">Confidence</label>
             <select
               value={confidence}
               onChange={(e) => setConfidence(e.target.value as Confidence)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="select-field"
             >
               <option value="High">High</option>
               <option value="Medium">Medium</option>
@@ -101,20 +101,20 @@ export function KeyResultFormModal({ open, onClose, onSubmit, title }: KeyResult
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Notes</label>
+          <label className="form-label">Notes</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="input-field"
           />
         </div>
         <p className="text-xs text-slate-500">Recommended: 2–4 key results per objective, weights summing to 100%.</p>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="btn-ghost">
             Cancel
           </button>
-          <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+          <button type="submit" className="btn-primary btn-sm">
             Add key result
           </button>
         </div>

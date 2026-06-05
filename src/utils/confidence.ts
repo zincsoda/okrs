@@ -6,17 +6,24 @@ const CONFIDENCE_RANK: Record<Confidence, number> = {
   Low: 1,
 }
 
-/** Objective confidence derived from KR confidence and weights. */
+const SIGNIFICANT_WEIGHT = 0.3
+
+function combinedWeight(keyResults: KeyResult[], confidence: Confidence): number {
+  return keyResults
+    .filter((kr) => kr.confidence === confidence)
+    .reduce((sum, kr) => sum + kr.weight, 0)
+}
+
+/**
+ * Objective confidence uses weighted-lowest logic: walk Low → Medium → High and
+ * return the first tier whose key results collectively account for ≥30% weight.
+ */
 export function calculateObjectiveConfidence(keyResults: KeyResult[]): Confidence {
   if (keyResults.length === 0) return 'High'
 
-  const hasLowWeighted = keyResults.some(
-    (kr) => kr.weight >= 0.3 && kr.confidence === 'Low',
-  )
-  if (hasLowWeighted) return 'Low'
-
-  const hasMedium = keyResults.some((kr) => kr.confidence === 'Medium')
-  if (hasMedium) return 'Medium'
+  if (combinedWeight(keyResults, 'Low') >= SIGNIFICANT_WEIGHT) return 'Low'
+  if (combinedWeight(keyResults, 'Medium') >= SIGNIFICANT_WEIGHT) return 'Medium'
+  if (combinedWeight(keyResults, 'High') >= SIGNIFICANT_WEIGHT) return 'High'
 
   return 'High'
 }

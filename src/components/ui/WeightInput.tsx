@@ -23,7 +23,7 @@ export function WeightInput({ value, onChange, disabled = false, label = 'Weight
             const p = parseFloat(e.target.value)
             if (!Number.isNaN(p)) onChange(p / 100)
           }}
-          className="w-20 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400"
+          className="input-field w-20"
         />
         <span className="text-sm text-slate-500">%</span>
       </div>

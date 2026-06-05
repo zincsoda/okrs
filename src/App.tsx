@@ -5,6 +5,7 @@ import { LoginPage } from './components/auth/LoginPage'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { EditPage } from './components/edit/EditPage'
+import { LoadingScreen } from './components/ui/LoadingScreen'
 import { useAuthStore } from './store/authStore'
 import { useOkrStore } from './store/okrStore'
 
@@ -18,23 +19,19 @@ function AuthenticatedApp() {
   }, [hydrateFromApi])
 
   if (hydrationStatus === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Loading OKRs…</p>
-      </div>
-    )
+    return <LoadingScreen message="Loading OKRs…" />
   }
 
   if (hydrationStatus === 'error') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm">
+        <div className="card max-w-md p-6 text-center">
           <p className="font-medium text-slate-900">Could not load OKRs</p>
           <p className="mt-2 text-sm text-slate-500">{hydrationError}</p>
           <button
             type="button"
             onClick={() => void hydrateFromApi()}
-            className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+            className="btn-primary mt-4"
           >
             Retry
           </button>
@@ -83,11 +80,7 @@ export default function App() {
   }, [checkSession])
 
   if (authStatus === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Checking session…</p>
-      </div>
-    )
+    return <LoadingScreen message="Checking session…" />
   }
 
   return (

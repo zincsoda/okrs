@@ -5,8 +5,7 @@ import { validatePeriodActivation } from '../../utils/validation'
 
 const PERIOD_STATUSES: PeriodStatus[] = ['Draft', 'Active', 'Closed']
 
-const inputClass =
-  'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100'
+const inputClass = 'input-field'
 
 type PeriodRowMenuProps = {
   onDuplicate: () => void

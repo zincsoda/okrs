@@ -4,9 +4,10 @@ type PeriodSelectorProps = {
   periods: PlanningPeriod[]
   selectedId: string | null
   onSelect: (id: string) => void
+  id?: string
 }
 
-export function PeriodSelector({ periods, selectedId, onSelect }: PeriodSelectorProps) {
+export function PeriodSelector({ periods, selectedId, onSelect, id }: PeriodSelectorProps) {
   const sorted = [...periods].sort(
     (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
   )
@@ -14,9 +15,10 @@ export function PeriodSelector({ periods, selectedId, onSelect }: PeriodSelector
   return (
     <div className="relative">
       <select
+        id={id}
         value={selectedId ?? sorted[0]?.id ?? ''}
         onChange={(e) => onSelect(e.target.value)}
-        className="appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        className="select-field appearance-none rounded-xl py-2.5 pl-4 pr-10 shadow-sm"
       >
         {sorted.map((period) => (
           <option key={period.id} value={period.id}>

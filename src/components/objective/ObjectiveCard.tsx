@@ -57,7 +57,9 @@ export function ObjectiveCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+    <div
+      className={`card overflow-hidden transition ${canToggle ? 'hover:border-indigo-200' : ''}`}
+    >
       <div
         className={`p-5 ${canToggle ? 'cursor-pointer' : ''}`}
         onClick={handleHeaderActivate}
@@ -83,65 +85,72 @@ export function ObjectiveCard({
                   <EditableTextField
                     value={objective.title}
                     onChange={(title) => updateObjective(period.id, objective.id, { title })}
-                    inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-lg font-semibold text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                    inputClassName="input-field text-lg font-semibold"
                   />
                 </div>
               ) : (
                 <h3 className="text-lg font-semibold text-slate-900">{objective.title}</h3>
               )}
-              <ConfidenceBadge confidence={confidence} size="sm" />
-              {canToggle && (
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                  {objective.keyResults.length} KRs
-                </span>
-              )}
             </div>
+
+            {editable && expanded && (
+              <EditableTextField
+                value={objective.description ?? ''}
+                onChange={(description) =>
+                  updateObjective(period.id, objective.id, {
+                    description: description || undefined,
+                  })
+                }
+                placeholder="Description (optional)"
+                multiline
+                rows={2}
+                className="mt-2"
+              />
+            )}
+
+            {expanded && !editable && objective.description && (
+              <p className="mt-2 text-sm text-slate-500">{objective.description}</p>
+            )}
+
             {editable && expanded ? (
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <EditableTextField
-                  value={objective.description ?? ''}
-                  onChange={(description) =>
-                    updateObjective(period.id, objective.id, {
-                      description: description || undefined,
-                    })
-                  }
-                  placeholder="Description (optional)"
-                  multiline
-                  rows={2}
-                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                />
-                <EditableTextField
+                  label="Owner"
                   value={objective.owner}
                   onChange={(owner) => updateObjective(period.id, objective.id, { owner })}
                   placeholder="Owner"
-                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+                <WeightInput
+                  label="Objective weight"
+                  value={objective.weight}
+                  onChange={(w) => updateObjective(period.id, objective.id, { weight: w })}
                 />
               </div>
             ) : (
-              <>
-                {canToggle && objective.description && (
-                  <p className="mt-1 text-sm text-slate-500">{objective.description}</p>
-                )}
-                <p className="mt-1 text-sm text-slate-500">{objective.owner}</p>
-              </>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+                {objective.owner && <span>{objective.owner}</span>}
+                {objective.owner && <span aria-hidden>·</span>}
+                <span>Objective weight {Math.round(objective.weight * 100)}%</span>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span>Roll-up confidence</span>
+                  <ConfidenceBadge confidence={confidence} size="sm" />
+                </span>
+              </div>
             )}
           </div>
 
-          <div className="flex flex-col items-end gap-2">
-            <span className="text-sm font-medium text-slate-600">
-              Weight: {Math.round(objective.weight * 100)}%
-            </span>
-            {canToggle && (
-              <svg
-                className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            )}
-          </div>
+          {canToggle && (
+            <svg
+              className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          )}
         </div>
 
         <div className="mt-4">
@@ -150,29 +159,23 @@ export function ObjectiveCard({
       </div>
 
       {showDetails && (
-        <div className="border-t border-slate-100 bg-slate-50/30 px-5 py-4">
+        <div className="border-t border-slate-200 bg-slate-100/80 px-5 py-4">
           {editable && draft && (
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowEditModal(true)}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                className="btn-secondary btn-sm"
               >
                 Edit objective
               </button>
               <button
                 type="button"
                 onClick={() => deleteObjective(period.id, objective.id)}
-                className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                className="btn-danger"
               >
                 Delete
               </button>
-              <div className="ml-auto w-28">
-                <WeightInput
-                  value={objective.weight}
-                  onChange={(w) => updateObjective(period.id, objective.id, { weight: w })}
-                />
-              </div>
             </div>
           )}
 
@@ -210,6 +213,18 @@ export function ObjectiveCard({
             </button>
           )}
 
+          {editable && objective.keyResults.length > 0 && (
+            <div
+              className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2"
+              title="Calculated from key result confidence levels below"
+            >
+              <p className="text-xs text-slate-500">
+                Objective roll-up confidence{' '}
+                <span className="text-slate-400">(derived from key results)</span>
+              </p>
+              <ConfidenceBadge confidence={confidence} size="sm" />
+            </div>
+          )}
         </div>
       )}
 

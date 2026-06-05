@@ -19,7 +19,7 @@ export function SaveControls() {
         type="button"
         disabled={!isDirty || saveStatus === 'saving'}
         onClick={() => void saveChanges()}
-        className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="btn-primary"
       >
         Save changes
       </button>

@@ -3,6 +3,7 @@ import * as authApi from '../../api/authApi'
 import { useAuthStore } from '../../store/authStore'
 import type { AdminUserRecord, UserRole } from '../../types/auth'
 import { ROLE_LABELS } from '../../types/auth'
+import { Modal } from '../ui/Modal'
 
 const ROLES: UserRole[] = ['viewer', 'editor', 'admin']
 
@@ -118,22 +119,20 @@ export function UserManagement() {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="card">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-4">
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Users</h2>
           <p className="mt-1 text-sm text-slate-500">Create and manage sign-in accounts manually.</p>
         </div>
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
-        >
+        <button type="button" onClick={openCreateForm} className="btn-accent btn-sm">
           Add user
         </button>
       </div>
 
-      {error && <p className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && !showForm && (
+        <p className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       {loading ? (
         <p className="px-4 py-8 text-sm text-slate-500">Loading users…</p>
@@ -171,7 +170,7 @@ export function UserManagement() {
                       <button
                         type="button"
                         onClick={() => openEditForm(user)}
-                        className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                        className="btn-secondary btn-sm"
                       >
                         Edit
                       </button>
@@ -179,7 +178,7 @@ export function UserManagement() {
                         <button
                           type="button"
                           onClick={() => void handleDelete(user)}
-                          className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                          className="btn-danger btn-sm"
                         >
                           Delete
                         </button>
@@ -193,107 +192,99 @@ export function UserManagement() {
         </div>
       )}
 
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900">
-              {editingUserId ? 'Edit user' : 'Add user'}
-            </h3>
-
-            <form onSubmit={(event) => void handleSubmit(event)} className="mt-4 space-y-4">
-              <div>
-                <label htmlFor="user-email" className="block text-sm font-medium text-slate-700">
-                  Email
-                </label>
-                <input
-                  id="user-email"
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="user-name" className="block text-sm font-medium text-slate-700">
-                  Display name
-                </label>
-                <input
-                  id="user-name"
-                  type="text"
-                  value={form.displayName}
-                  onChange={(event) => setForm((prev) => ({ ...prev, displayName: event.target.value }))}
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="user-role" className="block text-sm font-medium text-slate-700">
-                  Role
-                </label>
-                <select
-                  id="user-role"
-                  value={form.role}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, role: event.target.value as UserRole }))
-                  }
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-                >
-                  {ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {ROLE_LABELS[role]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="user-password" className="block text-sm font-medium text-slate-700">
-                  {editingUserId ? 'New password (optional)' : 'Password'}
-                </label>
-                <input
-                  id="user-password"
-                  type="password"
-                  required={!editingUserId}
-                  value={form.password}
-                  onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-                />
-              </div>
-
-              {editingUserId && (
-                <label className="flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={form.active}
-                    onChange={(event) => setForm((prev) => ({ ...prev, active: event.target.checked }))}
-                    className="rounded border-slate-300 text-indigo-600"
-                  />
-                  Active account
-                </label>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
-                >
-                  {submitting ? 'Saving…' : editingUserId ? 'Save changes' : 'Create user'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingUserId ? 'Edit user' : 'Add user'}
+      >
+        <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
+          <div>
+            <label htmlFor="user-email" className="form-label">
+              Email
+            </label>
+            <input
+              id="user-email"
+              type="email"
+              required
+              value={form.email}
+              onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+              className="input-field"
+            />
           </div>
-        </div>
-      )}
+
+          <div>
+            <label htmlFor="user-name" className="form-label">
+              Display name
+            </label>
+            <input
+              id="user-name"
+              type="text"
+              value={form.displayName}
+              onChange={(event) => setForm((prev) => ({ ...prev, displayName: event.target.value }))}
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="user-role" className="form-label">
+              Role
+            </label>
+            <select
+              id="user-role"
+              value={form.role}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, role: event.target.value as UserRole }))
+              }
+              className="select-field"
+            >
+              {ROLES.map((role) => (
+                <option key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="user-password" className="form-label">
+              {editingUserId ? 'New password (optional)' : 'Password'}
+            </label>
+            <input
+              id="user-password"
+              type="password"
+              required={!editingUserId}
+              value={form.password}
+              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              className="input-field"
+            />
+          </div>
+
+          {editingUserId && (
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={form.active}
+                onChange={(event) => setForm((prev) => ({ ...prev, active: event.target.checked }))}
+                className="rounded border-slate-300 text-indigo-600"
+              />
+              Active account
+            </label>
+          )}
+
+          {error && showForm && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={closeForm} className="btn-secondary btn-sm">
+              Cancel
+            </button>
+            <button type="submit" disabled={submitting} className="btn-primary btn-sm">
+              {submitting ? 'Saving…' : editingUserId ? 'Save changes' : 'Create user'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </section>
   )
 }

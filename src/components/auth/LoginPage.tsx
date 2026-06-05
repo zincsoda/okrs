@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
+import { LoadingScreen } from '../ui/LoadingScreen'
 
 export function LoginPage() {
   const location = useLocation()
@@ -16,11 +17,7 @@ export function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/'
 
   if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Checking session…</p>
-      </div>
-    )
+    return <LoadingScreen message="Checking session…" />
   }
 
   if (status === 'authenticated') {
@@ -43,14 +40,14 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-white px-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="card w-full max-w-md p-8">
         <p className="text-sm font-medium uppercase tracking-wide text-indigo-600">SRT Tech Team OKRs</p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">Sign in</h1>
         <p className="mt-2 text-sm text-slate-500">Use the account created by your administrator.</p>
 
         <form onSubmit={(event) => void handleSubmit(event)} className="mt-8 space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="form-label">
               Email
             </label>
             <input
@@ -60,12 +57,12 @@ export function LoginPage() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none ring-indigo-500 focus:ring-2"
+              className="input-field"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="password" className="form-label">
               Password
             </label>
             <input
@@ -75,7 +72,7 @@ export function LoginPage() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none ring-indigo-500 focus:ring-2"
+              className="input-field"
             />
           </div>
 
@@ -83,11 +80,7 @@ export function LoginPage() {
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error ?? authError}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
-          >
+          <button type="submit" disabled={submitting} className="btn-primary w-full">
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
