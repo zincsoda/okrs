@@ -9,6 +9,7 @@ import {
 import { validateKeyResultWeights } from '../../utils/validation'
 import { ProgressBar } from '../ui/ProgressBar'
 import { ConfidenceBadge } from '../ui/ConfidenceBadge'
+import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
 import { KeyResultCard } from '../keyResult/KeyResultCard'
 import { KeyResultFormModal } from '../keyResult/KeyResultFormModal'
@@ -19,10 +20,17 @@ type ObjectiveCardProps = {
   objective: Objective
   period: PlanningPeriod
   expanded: boolean
-  executiveMode: boolean
+  interactive?: boolean
+  expandable?: boolean
 }
 
-export function ObjectiveCard({ objective, period, expanded, executiveMode }: ObjectiveCardProps) {
+export function ObjectiveCard({
+  objective,
+  period,
+  expanded,
+  interactive = false,
+  expandable = false,
+}: ObjectiveCardProps) {
   const [showKrModal, setShowKrModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
 
@@ -36,24 +44,33 @@ export function ObjectiveCard({ objective, period, expanded, executiveMode }: Ob
   const progress = selectObjectiveProgress(objective)
   const confidence = selectObjectiveConfidence(objective)
   const draft = isPeriodDraft(period)
-  const editable = isPeriodEditable(period) && !executiveMode
-  const showDetails = expanded && !executiveMode
+  const editable = isPeriodEditable(period) && interactive
+  const canToggle = interactive || expandable
+  const showDetails = expanded && canToggle
 
   const krValidation = validateKeyResultWeights(objective)
+
+  const handleHeaderActivate = (e: React.MouseEvent | React.KeyboardEvent) => {
+    if (!canToggle) return
+    if ((e.target as HTMLElement).closest('[data-no-toggle]')) return
+    toggleExpanded(objective.id)
+  }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <div
-        className={`p-5 ${!executiveMode ? 'cursor-pointer' : ''}`}
-        onClick={() => !executiveMode && toggleExpanded(objective.id)}
+        className={`p-5 ${canToggle ? 'cursor-pointer' : ''}`}
+        onClick={handleHeaderActivate}
         onKeyDown={(e) => {
-          if (!executiveMode && (e.key === 'Enter' || e.key === ' ')) {
+          if (!canToggle) return
+          if ((e.target as HTMLElement).closest('[data-no-toggle]')) return
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             toggleExpanded(objective.id)
           }
         }}
-        role={executiveMode ? undefined : 'button'}
-        tabIndex={executiveMode ? undefined : 0}
+        role={canToggle ? 'button' : undefined}
+        tabIndex={canToggle ? 0 : undefined}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -61,25 +78,60 @@ export function ObjectiveCard({ objective, period, expanded, executiveMode }: Ob
               <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100">
                 {objective.objectiveId}
               </span>
-              <h3 className="text-lg font-semibold text-slate-900">{objective.title}</h3>
+              {editable && expanded ? (
+                <div className="min-w-0 flex-1">
+                  <EditableTextField
+                    value={objective.title}
+                    onChange={(title) => updateObjective(period.id, objective.id, { title })}
+                    inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-lg font-semibold text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  />
+                </div>
+              ) : (
+                <h3 className="text-lg font-semibold text-slate-900">{objective.title}</h3>
+              )}
               <ConfidenceBadge confidence={confidence} size="sm" />
-              {!executiveMode && (
+              {canToggle && (
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
                   {objective.keyResults.length} KRs
                 </span>
               )}
             </div>
-            {!executiveMode && objective.description && (
-              <p className="mt-1 text-sm text-slate-500">{objective.description}</p>
+            {editable && expanded ? (
+              <div className="mt-2 space-y-2">
+                <EditableTextField
+                  value={objective.description ?? ''}
+                  onChange={(description) =>
+                    updateObjective(period.id, objective.id, {
+                      description: description || undefined,
+                    })
+                  }
+                  placeholder="Description (optional)"
+                  multiline
+                  rows={2}
+                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+                <EditableTextField
+                  value={objective.owner}
+                  onChange={(owner) => updateObjective(period.id, objective.id, { owner })}
+                  placeholder="Owner"
+                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+            ) : (
+              <>
+                {canToggle && objective.description && (
+                  <p className="mt-1 text-sm text-slate-500">{objective.description}</p>
+                )}
+                <p className="mt-1 text-sm text-slate-500">{objective.owner}</p>
+              </>
             )}
-            <p className="mt-1 text-sm text-slate-500">{objective.owner}</p>
           </div>
 
           <div className="flex flex-col items-end gap-2">
             <span className="text-sm font-medium text-slate-600">
               Weight: {Math.round(objective.weight * 100)}%
             </span>
-            {!executiveMode && (
+            {canToggle && (
               <svg
                 className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
                 fill="none"
@@ -143,6 +195,9 @@ export function ObjectiveCard({ objective, period, expanded, executiveMode }: Ob
                 onDelete={() => deleteKeyResult(period.id, objective.id, kr.id)}
               />
             ))}
+            {objective.keyResults.length === 0 && (
+              <p className="text-center text-sm text-slate-500">No key results for this objective.</p>
+            )}
           </div>
 
           {editable && draft && (
@@ -154,6 +209,7 @@ export function ObjectiveCard({ objective, period, expanded, executiveMode }: Ob
               + Add key result
             </button>
           )}
+
         </div>
       )}
 

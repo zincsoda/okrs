@@ -1,0 +1,1 @@
+ALTER TABLE planning_periods ADD COLUMN edit_mode INTEGER NOT NULL DEFAULT 0;

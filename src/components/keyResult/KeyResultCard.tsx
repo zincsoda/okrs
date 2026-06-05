@@ -3,6 +3,7 @@ import { selectKrProgress } from '../../store/selectors'
 import { ProgressBar } from '../ui/ProgressBar'
 import { ConfidenceBadge } from '../ui/ConfidenceBadge'
 import { EditableNumberField } from '../ui/EditableNumberField'
+import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
 
 type KeyResultCardProps = {
@@ -30,9 +31,29 @@ export function KeyResultCard({
             <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
               {keyResult.keyResultId}
             </span>
-            <h4 className="font-medium text-slate-900">{keyResult.title}</h4>
+            {editable ? (
+              <div className="min-w-0 flex-1">
+                <EditableTextField
+                  value={keyResult.title}
+                  onChange={(title) => onUpdate({ title })}
+                  inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-900 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+            ) : (
+              <h4 className="font-medium text-slate-900">{keyResult.title}</h4>
+            )}
           </div>
-          <p className="mt-0.5 text-sm text-slate-500">{keyResult.owner}</p>
+          {editable ? (
+            <EditableTextField
+              value={keyResult.owner}
+              onChange={(owner) => onUpdate({ owner })}
+              placeholder="Owner"
+              className="mt-1"
+              inputClassName="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            />
+          ) : (
+            <p className="mt-0.5 text-sm text-slate-500">{keyResult.owner}</p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <ConfidenceBadge confidence={keyResult.confidence} size="sm" />
@@ -54,9 +75,13 @@ export function KeyResultCard({
       <ProgressBar progress={progress} size="sm" />
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="text-center">
-          <p className="text-xs text-slate-500">Baseline</p>
-          <p className="mt-0.5 text-sm font-medium tabular-nums text-slate-700">{keyResult.baseline}</p>
+        <div>
+          <EditableNumberField
+            label="Baseline"
+            value={keyResult.baseline}
+            disabled={!editable}
+            onChange={(baseline) => onUpdate({ baseline })}
+          />
         </div>
         <div>
           <EditableNumberField
@@ -66,9 +91,13 @@ export function KeyResultCard({
             onChange={(v) => onUpdate({ current: v })}
           />
         </div>
-        <div className="text-center">
-          <p className="text-xs text-slate-500">Target</p>
-          <p className="mt-0.5 text-sm font-medium tabular-nums text-slate-700">{keyResult.target}</p>
+        <div>
+          <EditableNumberField
+            label="Target"
+            value={keyResult.target}
+            disabled={!editable}
+            onChange={(target) => onUpdate({ target })}
+          />
         </div>
         <div>
           {draftPeriod && editable ? (
@@ -126,6 +155,7 @@ export function KeyResultCard({
           </button>
         )
       )}
+
     </div>
   )
 }

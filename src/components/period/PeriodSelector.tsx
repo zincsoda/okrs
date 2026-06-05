@@ -1,5 +1,4 @@
 import type { PlanningPeriod } from '../../types'
-import { StatusBadge } from '../ui/StatusBadge'
 
 type PeriodSelectorProps = {
   periods: PlanningPeriod[]
@@ -32,12 +31,4 @@ export function PeriodSelector({ periods, selectedId, onSelect }: PeriodSelector
       </div>
     </div>
   )
-}
-
-type PeriodStatusDisplayProps = {
-  status: PlanningPeriod['status']
-}
-
-export function PeriodStatusDisplay({ status }: PeriodStatusDisplayProps) {
-  return <StatusBadge status={status} />
 }

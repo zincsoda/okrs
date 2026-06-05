@@ -32,8 +32,12 @@ export function EditableNumberField({
     }
   }
 
+  const stopToggle = (e: React.SyntheticEvent) => {
+    e.stopPropagation()
+  }
+
   return (
-    <div className={className}>
+    <div className={className} data-no-toggle onClick={stopToggle} onMouseDown={stopToggle}>
       {label && (
         <label className="mb-1 block text-xs font-medium text-slate-500">{label}</label>
       )}
