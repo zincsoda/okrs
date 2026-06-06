@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="SRT Tech Team OKRs">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="40" x2="440" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E1B4B"/>
+      <stop offset="0.35" stop-color="#4338CA"/>
+      <stop offset="0.72" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#9333EA"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="256" y1="48" x2="256" y2="280" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bar-low" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E0E7FF"/>
+      <stop offset="1" stop-color="#C7D2FE"/>
+    </linearGradient>
+    <linearGradient id="bar-mid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F5F3FF"/>
+      <stop offset="1" stop-color="#DDD6FE"/>
+    </linearGradient>
+    <linearGradient id="bar-high" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EEF2FF"/>
+    </linearGradient>
+    <radialGradient id="dot-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(348 152) rotate(90) scale(52)">
+      <stop stop-color="#34D399"/>
+      <stop offset="1" stop-color="#34D399" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#shine)"/>
+
+  <circle cx="256" cy="292" r="148" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="10"/>
+  <circle cx="256" cy="292" r="108" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="8"/>
+  <circle cx="256" cy="292" r="68" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="6"/>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="132" y="304" width="72" height="128" rx="20" fill="url(#bar-low)"/>
+    <rect x="220" y="236" width="72" height="196" rx="20" fill="url(#bar-mid)"/>
+    <rect x="308" y="156" width="72" height="276" rx="20" fill="url(#bar-high)"/>
+  </g>
+
+  <circle cx="344" cy="132" r="44" fill="url(#dot-glow)"/>
+  <circle cx="344" cy="132" r="24" fill="#34D399"/>
+  <circle cx="336" cy="124" r="8" fill="#ECFDF5" fill-opacity="0.85"/>
+</svg>
