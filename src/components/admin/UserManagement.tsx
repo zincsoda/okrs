@@ -3,6 +3,7 @@ import * as authApi from '../../api/authApi'
 import { useAuthStore } from '../../store/authStore'
 import type { AdminUserRecord, UserRole } from '../../types/auth'
 import { ROLE_LABELS } from '../../types/auth'
+import { formatChangeEventTime } from '../../utils/changeEventLabels'
 import { Modal } from '../ui/Modal'
 
 const ROLES: UserRole[] = ['viewer', 'editor', 'admin']
@@ -147,6 +148,7 @@ export function UserManagement() {
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Role</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Last active</th>
                 <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -164,6 +166,9 @@ export function UserManagement() {
                     >
                       {user.active ? 'Active' : 'Inactive'}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {user.lastActiveAt ? formatChangeEventTime(user.lastActiveAt) : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">

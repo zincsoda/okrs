@@ -10,6 +10,7 @@ export type AuthUser = {
 export type AdminUserRecord = AuthUser & {
   active: boolean
   createdAt: string
+  lastActiveAt: string | null
 }
 
 export const ROLE_LABELS: Record<UserRole, string> = {

@@ -115,6 +115,13 @@ function rowToAuthUser(row: UserRow): AuthUser {
   }
 }
 
+async function touchUserActivity(db: D1Database, userId: string): Promise<void> {
+  await db
+    .prepare('UPDATE users SET last_active_at = ? WHERE id = ?')
+    .bind(new Date().toISOString(), userId)
+    .run()
+}
+
 export async function getSessionUser(db: D1Database, request: Request): Promise<AuthUser | null> {
   const sessionId = parseSessionCookie(request)
   if (!sessionId) return null
@@ -130,7 +137,10 @@ export async function getSessionUser(db: D1Database, request: Request): Promise<
     .bind(sessionId, now)
     .first<UserRow>()
 
-  return result ? rowToAuthUser(result) : null
+  if (!result) return null
+
+  await touchUserActivity(db, result.id)
+  return rowToAuthUser(result)
 }
 
 export async function loginUser(
@@ -162,6 +172,8 @@ export async function loginUser(
     .prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)')
     .bind(sessionId, result.id, expires.toISOString())
     .run()
+
+  await touchUserActivity(db, result.id)
 
   return {
     user: rowToAuthUser(result),
@@ -224,12 +236,13 @@ export async function changeOwnPassword(
 export type AdminUserRecord = AuthUser & {
   active: boolean
   createdAt: string
+  lastActiveAt: string | null
 }
 
 export async function listUsers(db: D1Database): Promise<AdminUserRecord[]> {
   const result = await db
     .prepare(
-      `SELECT id, email, role, display_name, active, created_at
+      `SELECT id, email, role, display_name, active, created_at, last_active_at
        FROM users ORDER BY email COLLATE NOCASE`,
     )
     .all<{
@@ -239,6 +252,7 @@ export async function listUsers(db: D1Database): Promise<AdminUserRecord[]> {
       display_name: string | null
       active: number
       created_at: string
+      last_active_at: string | null
     }>()
 
   return result.results.map((row) => ({
@@ -248,6 +262,7 @@ export async function listUsers(db: D1Database): Promise<AdminUserRecord[]> {
     role: row.role,
     active: row.active === 1,
     createdAt: row.created_at,
+    lastActiveAt: row.last_active_at,
   }))
 }
 
@@ -287,6 +302,7 @@ export async function createUser(
     role: input.role,
     active: true,
     createdAt,
+    lastActiveAt: null,
   }
 }
 
@@ -296,7 +312,7 @@ export async function updateUser(
   input: { email?: string; role?: UserRole; displayName?: string | null; active?: boolean; password?: string },
 ): Promise<AdminUserRecord | { error: string }> {
   const existing = await db
-    .prepare('SELECT id, email, role, display_name, active, created_at FROM users WHERE id = ?')
+    .prepare('SELECT id, email, role, display_name, active, created_at, last_active_at FROM users WHERE id = ?')
     .bind(userId)
     .first<{
       id: string
@@ -305,6 +321,7 @@ export async function updateUser(
       display_name: string | null
       active: number
       created_at: string
+      last_active_at: string | null
     }>()
 
   if (!existing) {
@@ -367,6 +384,7 @@ export async function updateUser(
     role,
     active: active === 1,
     createdAt: existing.created_at,
+    lastActiveAt: existing.last_active_at,
   }
 }
 
