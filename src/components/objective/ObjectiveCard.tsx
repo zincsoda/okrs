@@ -11,6 +11,7 @@ import { ProgressBar } from '../ui/ProgressBar'
 import { ConfidenceBadge } from '../ui/ConfidenceBadge'
 import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
+import { CopyButton } from '../ui/CopyButton'
 import { KeyResultCard } from '../keyResult/KeyResultCard'
 import { KeyResultFormModal } from '../keyResult/KeyResultFormModal'
 import { ObjectiveFormModal } from './ObjectiveFormModal'
@@ -91,6 +92,7 @@ export function ObjectiveCard({
               ) : (
                 <h3 className="text-lg font-semibold text-slate-900">{objective.title}</h3>
               )}
+              <CopyButton text={objective.title} label="Copy objective" />
             </div>
 
             {editable && expanded && (
