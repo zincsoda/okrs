@@ -5,6 +5,7 @@ import { ConfidenceBadge } from '../ui/ConfidenceBadge'
 import { EditableNumberField } from '../ui/EditableNumberField'
 import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
+import { CopyButton } from '../ui/CopyButton'
 
 type KeyResultCardProps = {
   keyResult: KeyResult
@@ -42,6 +43,7 @@ export function KeyResultCard({
             ) : (
               <h4 className="font-medium text-slate-900">{keyResult.title}</h4>
             )}
+            <CopyButton text={keyResult.title} label="Copy key result" />
           </div>
           {editable ? (
             <EditableTextField
