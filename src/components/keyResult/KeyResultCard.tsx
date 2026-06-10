@@ -77,7 +77,7 @@ export function KeyResultCard({
 
       <div className="mt-4">
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Metrics</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           <EditableNumberField
             label="Baseline"
             value={keyResult.baseline}
