@@ -1,8 +1,11 @@
 import { useOkrStore, useSelectedPeriod } from '../../store/okrStore'
+import { BuildInfoFooter } from '../layout/BuildInfoFooter'
 import { PageShell } from '../layout/PageShell'
 import { EmptyState } from '../ui/EmptyState'
 import { DashboardHeader } from './DashboardHeader'
 import { ObjectiveCard } from '../objective/ObjectiveCard'
+
+const dashboardFooter = <BuildInfoFooter />
 
 export function Dashboard() {
   const period = useSelectedPeriod()
@@ -10,7 +13,7 @@ export function Dashboard() {
 
   if (!period) {
     return (
-      <PageShell>
+      <PageShell footer={dashboardFooter}>
         <EmptyState
           title="No planning periods yet"
           description="An administrator can create a planning period from the Admin page."
@@ -20,7 +23,7 @@ export function Dashboard() {
   }
 
   return (
-    <PageShell>
+    <PageShell footer={dashboardFooter}>
       <DashboardHeader period={period} />
 
       <section className="space-y-4">
