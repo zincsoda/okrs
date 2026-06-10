@@ -1,11 +1,13 @@
 import { buildCommitDate, buildCommitId } from '../../buildInfo'
 
-function formatCommitDate(iso: string): string {
+function formatCommitTimestamp(iso: string): string {
   if (!iso) return 'unknown date'
-  return new Date(iso).toLocaleDateString('en-GB', {
+  return new Date(iso).toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 
@@ -16,7 +18,7 @@ export function BuildInfoFooter() {
       <span aria-hidden="true" className="mx-2">
         ·
       </span>
-      <time dateTime={buildCommitDate}>{formatCommitDate(buildCommitDate)}</time>
+      <time dateTime={buildCommitDate}>{formatCommitTimestamp(buildCommitDate)}</time>
     </footer>
   )
 }
