@@ -12,7 +12,7 @@ import { ConfidenceBadge } from '../ui/ConfidenceBadge'
 import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
 import { CopyButton } from '../ui/CopyButton'
-import { KeyResultCard } from '../keyResult/KeyResultCard'
+import { SortableKeyResultList } from '../keyResult/SortableKeyResultList'
 import { KeyResultFormModal } from '../keyResult/KeyResultFormModal'
 import { ObjectiveFormModal } from './ObjectiveFormModal'
 import { useOkrStore } from '../../store/okrStore'
@@ -41,6 +41,7 @@ export function ObjectiveCard({
   const addKeyResult = useOkrStore((s) => s.addKeyResult)
   const updateKeyResult = useOkrStore((s) => s.updateKeyResult)
   const deleteKeyResult = useOkrStore((s) => s.deleteKeyResult)
+  const reorderKeyResults = useOkrStore((s) => s.reorderKeyResults)
 
   const progress = selectObjectiveProgress(objective)
   const confidence = selectObjectiveConfidence(objective)
@@ -209,21 +210,20 @@ export function ObjectiveCard({
             </div>
           )}
 
-          <div className="space-y-3">
-            {objective.keyResults.map((kr) => (
-              <KeyResultCard
-                key={kr.id}
-                keyResult={kr}
-                editable={editable}
-                draftPeriod={draft}
-                onUpdate={(updates) => updateKeyResult(period.id, objective.id, kr.id, updates)}
-                onDelete={() => deleteKeyResult(period.id, objective.id, kr.id)}
-              />
-            ))}
-            {objective.keyResults.length === 0 && (
-              <p className="text-center text-sm text-slate-500">No key results for this objective.</p>
-            )}
-          </div>
+          {objective.keyResults.length === 0 ? (
+            <p className="text-center text-sm text-slate-500">No key results for this objective.</p>
+          ) : (
+            <SortableKeyResultList
+              keyResults={objective.keyResults}
+              editable={editable}
+              draftPeriod={draft}
+              onUpdate={(krId, updates) => updateKeyResult(period.id, objective.id, krId, updates)}
+              onDelete={(krId) => deleteKeyResult(period.id, objective.id, krId)}
+              onReorder={(activeId, overId) =>
+                reorderKeyResults(period.id, objective.id, activeId, overId)
+              }
+            />
+          )}
 
           {editable && draft && (
             <button

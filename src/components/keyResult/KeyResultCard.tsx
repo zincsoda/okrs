@@ -7,10 +7,23 @@ import { EditableTextField } from '../ui/EditableTextField'
 import { WeightInput } from '../ui/WeightInput'
 import { CopyButton } from '../ui/CopyButton'
 
+type DragHandleProps = {
+  role?: string
+  tabIndex?: number
+  'aria-describedby'?: string
+  'aria-pressed'?: boolean | 'mixed' | 'false' | 'true'
+  'aria-roledescription'?: string
+  'aria-disabled'?: boolean
+  onKeyDown?: (event: React.KeyboardEvent) => void
+  onPointerDown?: (event: React.PointerEvent) => void
+}
+
 type KeyResultCardProps = {
   keyResult: KeyResult
   editable: boolean
   draftPeriod: boolean
+  sortable?: boolean
+  dragHandleProps?: DragHandleProps
   onUpdate: (updates: Partial<KeyResult>) => void
   onDelete: () => void
 }
@@ -19,6 +32,8 @@ export function KeyResultCard({
   keyResult,
   editable,
   draftPeriod,
+  sortable = false,
+  dragHandleProps,
   onUpdate,
   onDelete,
 }: KeyResultCardProps) {
@@ -29,6 +44,19 @@ export function KeyResultCard({
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
+            {sortable && dragHandleProps && (
+              <button
+                type="button"
+                data-no-toggle
+                className="cursor-grab touch-none rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing"
+                aria-label={`Drag to reorder ${keyResult.keyResultId}`}
+                {...dragHandleProps}
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
+                  <path d="M7 4a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2zM7 9a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2zM7 14a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2z" />
+                </svg>
+              </button>
+            )}
             <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
               {keyResult.keyResultId}
             </span>

@@ -14,6 +14,14 @@ export function nextKeyResultId(keyResults: KeyResult[]): string {
   return `KR${max + 1}`
 }
 
+/** Assign KR1, KR2, … labels to match array position. */
+export function renumberKeyResults(keyResults: KeyResult[]): KeyResult[] {
+  return keyResults.map((keyResult, index) => ({
+    ...keyResult,
+    keyResultId: `KR${index + 1}`,
+  }))
+}
+
 /** Backfill missing UUIDs and human-readable key result IDs. */
 export function normalizeKeyResults(keyResults: KeyResult[]): KeyResult[] {
   const usedIds = new Set<string>()

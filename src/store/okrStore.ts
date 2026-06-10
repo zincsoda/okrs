@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { fetchOkrState, saveOkrState, saveSelectedPeriod } from '../api/okrApi'
 import type { KeyResult, Objective, PeriodStatus, PlanningPeriod } from '../types'
-import { nextKeyResultId } from '../utils/keyResultId'
+import { nextKeyResultId, renumberKeyResults } from '../utils/keyResultId'
 import { nextObjectiveId, normalizePeriods } from '../utils/objectiveId'
 import { getDefaultQuarterDates, getDefaultQuarterName, getNextPeriodFromSource } from '../utils/quarterly'
 import { validateKeyResultWeights, validatePeriodActivation } from '../utils/validation'
@@ -62,6 +62,7 @@ type OkrActions = {
     updates: Partial<KeyResult>,
   ) => void
   deleteKeyResult: (periodId: string, objectiveId: string, krId: string) => void
+  reorderKeyResults: (periodId: string, objectiveId: string, activeId: string, overId: string) => void
   saveChanges: () => Promise<{ success: boolean; errors: string[] }>
 }
 
@@ -427,13 +428,40 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
           o.id === objectiveId
             ? {
                 ...o,
-                keyResults: o.keyResults.filter((kr) => kr.id !== krId),
+                keyResults: renumberKeyResults(o.keyResults.filter((kr) => kr.id !== krId)),
               }
             : o,
         ),
       })),
       isDirty: true,
     })),
+
+  reorderKeyResults: (periodId, objectiveId, activeId, overId) => {
+    if (activeId === overId) return
+
+    set((state) => ({
+      periods: updatePeriodInList(state.periods, periodId, (p) => ({
+        ...p,
+        objectives: p.objectives.map((o) => {
+          if (o.id !== objectiveId) return o
+
+          const oldIndex = o.keyResults.findIndex((kr) => kr.id === activeId)
+          const newIndex = o.keyResults.findIndex((kr) => kr.id === overId)
+          if (oldIndex < 0 || newIndex < 0) return o
+
+          const reordered = [...o.keyResults]
+          const [moved] = reordered.splice(oldIndex, 1)
+          reordered.splice(newIndex, 0, moved)
+
+          return {
+            ...o,
+            keyResults: renumberKeyResults(reordered),
+          }
+        }),
+      })),
+      isDirty: true,
+    }))
+  },
 
   saveChanges: async () => {
     const { periods, selectedPeriodId, hydrationStatus, isDirty } = get()
