@@ -51,9 +51,15 @@ export function ObjectiveCard({
 
   const krValidation = validateKeyResultWeights(objective)
 
+  const isInteractiveTarget = (target: HTMLElement) =>
+    target.closest('input, textarea, select, button, a, label, [data-no-toggle]')
+
   const handleHeaderActivate = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (!canToggle) return
-    if ((e.target as HTMLElement).closest('[data-no-toggle]')) return
+    const target = e.target as HTMLElement
+    if (isInteractiveTarget(target)) return
+    // In edit mode, only the chevron collapses — avoids toggling while editing fields.
+    if (expanded && editable && !target.closest('[data-expand-toggle]')) return
     toggleExpanded(objective.id)
   }
 
@@ -62,11 +68,13 @@ export function ObjectiveCard({
       className={`card overflow-hidden transition ${canToggle ? 'hover:border-indigo-200' : ''}`}
     >
       <div
-        className={`p-5 ${canToggle ? 'cursor-pointer' : ''}`}
+        className={`p-5 ${canToggle && !(expanded && editable) ? 'cursor-pointer' : ''}`}
         onClick={handleHeaderActivate}
         onKeyDown={(e) => {
           if (!canToggle) return
-          if ((e.target as HTMLElement).closest('[data-no-toggle]')) return
+          const target = e.target as HTMLElement
+          if (isInteractiveTarget(target)) return
+          if (expanded && editable && !target.closest('[data-expand-toggle]')) return
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             toggleExpanded(objective.id)
@@ -143,15 +151,27 @@ export function ObjectiveCard({
           </div>
 
           {canToggle && (
-            <svg
-              className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden
+            <button
+              type="button"
+              data-expand-toggle
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleExpanded(objective.id)
+              }}
+              className="shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              aria-label={expanded ? 'Collapse objective' : 'Expand objective'}
+              aria-expanded={expanded}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+              <svg
+                className={`h-5 w-5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           )}
         </div>
 
