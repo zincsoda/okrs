@@ -1,14 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Objective, PlanningPeriod } from '../types'
 import { normalizeKeyResults } from './keyResultId'
-import {
-  isObjectiveO1,
-  isObjectiveO2,
-  isObjectiveO3,
-  mergeO1KeyResults,
-  mergeO2KeyResults,
-  mergeO3KeyResults,
-} from './seed'
 
 const OBJECTIVE_ID_PATTERN = /^O(\d+)$/i
 
@@ -35,14 +27,7 @@ function normalizePeriodObjectives(objectives: Objective[]): Objective[] {
     }
 
     usedIds.add(objectiveId)
-    let keyResults = normalizeKeyResults(objective.keyResults)
-    if (isObjectiveO1(objectiveId)) {
-      keyResults = normalizeKeyResults(mergeO1KeyResults(keyResults))
-    } else if (isObjectiveO2(objectiveId)) {
-      keyResults = normalizeKeyResults(mergeO2KeyResults(keyResults))
-    } else if (isObjectiveO3(objectiveId)) {
-      keyResults = normalizeKeyResults(mergeO3KeyResults(keyResults))
-    }
+    const keyResults = normalizeKeyResults(objective.keyResults)
     normalized.push({
       ...objective,
       id: objective.id || uuidv4(),
