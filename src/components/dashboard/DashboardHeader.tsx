@@ -9,6 +9,7 @@ import { UserMenu } from '../auth/UserMenu'
 import { PageHeader } from '../layout/PageHeader'
 import { PeriodSelector } from '../period/PeriodSelector'
 import { ConfidenceBadge } from '../ui/ConfidenceBadge'
+import { DownloadCsvButton } from '../ui/DownloadCsvButton'
 import { ProgressBar } from '../ui/ProgressBar'
 import { StatusBadge } from '../ui/StatusBadge'
 
@@ -35,6 +36,7 @@ export function DashboardHeader({ period }: DashboardHeaderProps) {
       subtitle={formatPeriodRange(period.startDate, period.endDate)}
       actions={
         <>
+          <DownloadCsvButton periods={[period]} />
           {canAccess('editor') && (
             <Link to="/edit" className="btn-accent">
               Edit OKRs

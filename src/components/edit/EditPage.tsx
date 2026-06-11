@@ -10,6 +10,7 @@ import { PageShell } from '../layout/PageShell'
 import { PageHeader } from '../layout/PageHeader'
 import { ObjectiveCard } from '../objective/ObjectiveCard'
 import { ObjectiveFormModal } from '../objective/ObjectiveFormModal'
+import { DownloadCsvButton } from '../ui/DownloadCsvButton'
 import { EmptyState } from '../ui/EmptyState'
 import { SaveHistory } from '../ui/SaveHistory'
 import { StatusBadge } from '../ui/StatusBadge'
@@ -68,6 +69,7 @@ export function EditPage() {
         subtitle={formatPeriodRange(period.startDate, period.endDate)}
         actions={
           <>
+            <DownloadCsvButton periods={[period]} />
             <Link to="/" className="btn-secondary">
               Back to dashboard
             </Link>

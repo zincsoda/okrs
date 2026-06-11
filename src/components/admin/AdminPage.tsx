@@ -9,6 +9,7 @@ import { CreatePeriodModal } from '../period/CreatePeriodModal'
 import { PeriodSelector } from '../period/PeriodSelector'
 import { PeriodList } from './PeriodList'
 import { UserManagement } from './UserManagement'
+import { DownloadCsvButton } from '../ui/DownloadCsvButton'
 import { SaveControls } from '../ui/SaveControls'
 import { SaveHistory } from '../ui/SaveHistory'
 
@@ -55,6 +56,7 @@ export function AdminPage() {
         subtitle="Manage user accounts and planning periods for the OKR dashboard."
         actions={
           <>
+            <DownloadCsvButton periods={periods} label="Export all CSV" />
             <SaveControls />
             <Link to="/" className="btn-secondary">
               Back to dashboard
