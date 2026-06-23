@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import {
   fetchOkrState,
+  normalizeStateVersion,
   saveOkrState,
   saveSelectedPeriod,
   SaveConflictError,
@@ -129,7 +130,7 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
       set({
         periods: normalizePeriods(remote.periods),
         selectedPeriodId: remote.selectedPeriodId,
-        stateVersion: remote.version,
+        stateVersion: normalizeStateVersion(remote.version),
         hydrationStatus: 'ready',
         hydrationError: null,
         isDirty: false,
@@ -526,7 +527,7 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
     set({
       periods: normalizePeriods(saveConflict.periods),
       selectedPeriodId: saveConflict.selectedPeriodId,
-      stateVersion: saveConflict.version,
+      stateVersion: normalizeStateVersion(saveConflict.version),
       saveConflict: null,
       isDirty: false,
       saveStatus: 'idle',
