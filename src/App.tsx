@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { EditPage } from './components/edit/EditPage'
 import { LoadingScreen } from './components/ui/LoadingScreen'
+import { SaveConflictModal } from './components/ui/SaveConflictModal'
 import { useAuthStore } from './store/authStore'
 import { useOkrStore } from './store/okrStore'
 
@@ -41,33 +42,36 @@ function AuthenticatedApp() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute minRole="viewer">
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit"
-        element={
-          <ProtectedRoute minRole="editor">
-            <EditPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute minRole="admin">
-            <AdminPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute minRole="viewer">
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit"
+          element={
+            <ProtectedRoute minRole="editor">
+              <EditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute minRole="admin">
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <SaveConflictModal />
+    </>
   )
 }
 

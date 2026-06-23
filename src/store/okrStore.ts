@@ -1,6 +1,12 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import { fetchOkrState, saveOkrState, saveSelectedPeriod } from '../api/okrApi'
+import {
+  fetchOkrState,
+  saveOkrState,
+  saveSelectedPeriod,
+  SaveConflictError,
+  type RemoteOkrState,
+} from '../api/okrApi'
 import type { KeyResult, Objective, PeriodStatus, PlanningPeriod } from '../types'
 import { nextKeyResultId, renumberKeyResults } from '../utils/keyResultId'
 import { nextObjectiveId, normalizePeriods } from '../utils/objectiveId'
@@ -14,11 +20,13 @@ type SaveStatus = 'idle' | 'saving' | 'error'
 type OkrState = {
   periods: PlanningPeriod[]
   selectedPeriodId: string | null
+  stateVersion: number
   expandedObjectives: Record<string, boolean>
   hydrationStatus: HydrationStatus
   hydrationError: string | null
   saveStatus: SaveStatus
   saveError: string | null
+  saveConflict: RemoteOkrState | null
   isDirty: boolean
 }
 
@@ -64,6 +72,8 @@ type OkrActions = {
   deleteKeyResult: (periodId: string, objectiveId: string, krId: string) => void
   reorderKeyResults: (periodId: string, objectiveId: string, activeId: string, overId: string) => void
   saveChanges: () => Promise<{ success: boolean; errors: string[] }>
+  dismissSaveConflict: () => void
+  reloadAfterConflict: () => void
 }
 
 export type OkrStore = OkrState & OkrActions
@@ -102,11 +112,13 @@ function updatePeriodInList(
 export const useOkrStore = create<OkrStore>()((set, get) => ({
   periods: [],
   selectedPeriodId: null,
+  stateVersion: 1,
   expandedObjectives: {},
   hydrationStatus: 'loading',
   hydrationError: null,
   saveStatus: 'idle',
   saveError: null,
+  saveConflict: null,
   isDirty: false,
 
   hydrateFromApi: async () => {
@@ -117,9 +129,11 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
       set({
         periods: normalizePeriods(remote.periods),
         selectedPeriodId: remote.selectedPeriodId,
+        stateVersion: remote.version,
         hydrationStatus: 'ready',
         hydrationError: null,
         isDirty: false,
+        saveConflict: null,
       })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load OKRs'
@@ -464,7 +478,7 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
   },
 
   saveChanges: async () => {
-    const { periods, selectedPeriodId, hydrationStatus, isDirty } = get()
+    const { periods, selectedPeriodId, stateVersion, hydrationStatus, isDirty } = get()
     if (hydrationStatus !== 'ready') {
       return { success: false, errors: ['OKR data is not ready to save.'] }
     }
@@ -475,14 +489,49 @@ export const useOkrStore = create<OkrStore>()((set, get) => ({
     set({ saveStatus: 'saving', saveError: null })
 
     try {
-      await saveOkrState({ periods, selectedPeriodId }, { recordSave: true })
-      set({ saveStatus: 'idle', saveError: null, isDirty: false })
+      const { version } = await saveOkrState(
+        { periods, selectedPeriodId, version: stateVersion },
+        { recordSave: true },
+      )
+      set({
+        saveStatus: 'idle',
+        saveError: null,
+        isDirty: false,
+        stateVersion: version,
+        saveConflict: null,
+      })
       return { success: true, errors: [] }
     } catch (error) {
+      if (error instanceof SaveConflictError) {
+        set({
+          saveStatus: 'error',
+          saveError: error.message,
+          saveConflict: error.serverState,
+        })
+        return { success: false, errors: [error.message] }
+      }
+
       const message = error instanceof Error ? error.message : 'Failed to save OKRs'
       set({ saveStatus: 'error', saveError: message })
       return { success: false, errors: [message] }
     }
+  },
+
+  dismissSaveConflict: () => set({ saveConflict: null }),
+
+  reloadAfterConflict: () => {
+    const { saveConflict } = get()
+    if (!saveConflict) return
+
+    set({
+      periods: normalizePeriods(saveConflict.periods),
+      selectedPeriodId: saveConflict.selectedPeriodId,
+      stateVersion: saveConflict.version,
+      saveConflict: null,
+      isDirty: false,
+      saveStatus: 'idle',
+      saveError: null,
+    })
   },
 }))
 
