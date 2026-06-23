@@ -234,7 +234,8 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
         recordSave?: boolean
       }
 
-      if (body.expectedVersion === undefined || !Number.isInteger(body.expectedVersion)) {
+      const expectedVersion = parseExpectedVersion(body.expectedVersion)
+      if (expectedVersion === null) {
         return jsonResponse(
           { error: 'expectedVersion is required. Reload the page and try again.' },
           400,
@@ -242,7 +243,7 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
       }
 
       const currentVersion = await getStateVersion(env)
-      if (body.expectedVersion !== currentVersion) {
+      if (expectedVersion !== currentVersion) {
         return jsonResponse(await loadState(env), 409)
       }
 
@@ -258,7 +259,7 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
         }
       }
 
-      const nextVersion = body.expectedVersion + 1
+      const nextVersion = expectedVersion + 1
       await saveState(env, body.periods, body.selectedPeriodId ?? null, nextVersion)
       return jsonResponse({ success: true, version: nextVersion })
     }
@@ -360,6 +361,20 @@ async function handleAdminUsers(request: Request, env: Env, url: URL): Promise<R
   }
 
   return jsonResponse({ error: 'Not found' }, 404)
+}
+
+function parseExpectedVersion(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const version = Math.trunc(value)
+    return version > 0 ? version : null
+  }
+
+  if (typeof value === 'string' && /^\d+$/.test(value.trim())) {
+    const version = Number.parseInt(value, 10)
+    return version > 0 ? version : null
+  }
+
+  return null
 }
 
 async function getStateVersion(env: Env): Promise<number> {
