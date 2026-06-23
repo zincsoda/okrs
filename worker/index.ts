@@ -201,6 +201,7 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
       }
 
       const body = (await request.json()) as {
+        expectedVersion?: number
         periods: Array<{
           id: string
           name: string
@@ -233,6 +234,18 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
         recordSave?: boolean
       }
 
+      if (body.expectedVersion === undefined || !Number.isInteger(body.expectedVersion)) {
+        return jsonResponse(
+          { error: 'expectedVersion is required. Reload the page and try again.' },
+          400,
+        )
+      }
+
+      const currentVersion = await getStateVersion(env)
+      if (body.expectedVersion !== currentVersion) {
+        return jsonResponse(await loadState(env), 409)
+      }
+
       if (body.recordSave) {
         const previousState = await loadState(env)
         const saveEvent = buildSaveEvent(
@@ -245,8 +258,9 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
         }
       }
 
-      await saveState(env, body.periods, body.selectedPeriodId ?? null)
-      return jsonResponse({ success: true })
+      const nextVersion = body.expectedVersion + 1
+      await saveState(env, body.periods, body.selectedPeriodId ?? null, nextVersion)
+      return jsonResponse({ success: true, version: nextVersion })
     }
 
     if (request.method === 'PUT' && url.pathname === '/api/settings') {
@@ -348,6 +362,18 @@ async function handleAdminUsers(request: Request, env: Env, url: URL): Promise<R
   return jsonResponse({ error: 'Not found' }, 404)
 }
 
+async function getStateVersion(env: Env): Promise<number> {
+  const row = await env.DB.prepare("SELECT value FROM app_settings WHERE key = 'stateVersion'")
+    .first<{ value: string }>()
+
+  if (!row) {
+    return 1
+  }
+
+  const parsed = Number.parseInt(row.value, 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+}
+
 async function loadState(env: Env) {
   const periodsResult = await env.DB.prepare(
     'SELECT id, name, start_date, end_date, status FROM planning_periods ORDER BY start_date',
@@ -415,6 +441,7 @@ async function loadState(env: Env) {
   return {
     periods,
     selectedPeriodId: settings.get('selectedPeriodId') ?? null,
+    version: Number.parseInt(settings.get('stateVersion') ?? '1', 10) || 1,
   }
 }
 
@@ -449,12 +476,12 @@ async function saveState(
     }>
   }>,
   selectedPeriodId: string | null,
+  nextVersion: number,
 ) {
   const statements: D1PreparedStatement[] = [
     env.DB.prepare('DELETE FROM key_results'),
     env.DB.prepare('DELETE FROM objectives'),
     env.DB.prepare('DELETE FROM planning_periods'),
-    env.DB.prepare('DELETE FROM app_settings'),
   ]
 
   for (const period of periods) {
@@ -507,11 +534,21 @@ async function saveState(
 
   if (selectedPeriodId) {
     statements.push(
-      env.DB.prepare("INSERT INTO app_settings (key, value) VALUES ('selectedPeriodId', ?)").bind(
-        selectedPeriodId,
-      ),
+      env.DB.prepare(
+        "INSERT INTO app_settings (key, value) VALUES ('selectedPeriodId', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+      ).bind(selectedPeriodId),
+    )
+  } else {
+    statements.push(
+      env.DB.prepare("DELETE FROM app_settings WHERE key = 'selectedPeriodId'"),
     )
   }
+
+  statements.push(
+    env.DB.prepare(
+      "INSERT INTO app_settings (key, value) VALUES ('stateVersion', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+    ).bind(String(nextVersion)),
+  )
 
   await env.DB.batch(statements)
 }

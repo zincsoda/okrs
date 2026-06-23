@@ -15,5 +15,17 @@
       "database_name": "tech-okr-db",
       "database_id": "1878f017-27e9-433a-a853-11323f5b5ffa"
     }
-  ]
+  ],
+  "env": {
+    "staging": {
+      "name": "tech-okr-manager-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "tech-okr-db-staging",
+          "database_id": "5391ce87-ddcf-4ca8-ad14-0782bcf715d5"
+        }
+      ]
+    }
+  }
 }
